@@ -16,24 +16,26 @@ class MyApp extends StatelessWidget {
         requiredUserProperties: List<UserProperty>.unmodifiable([
           UserProperty(
             label: 'Name',
-            get: () => 'John Doe',
+            get: () async => Future.value('John Doe'),
             validate: (value) => value.isNotEmpty,
-            save: (newValue) {
+            save: (newValue) async {
               // logic to save the new value to a persistent store
+              return Future.value();
             },
           ),
           UserProperty(
             label: 'Email',
-            get: () {
+            get: () async {
               // logic to get the email from a persistent store
-              return 'myEmail@email.com';
+              return Future.value('myEmail@email.com');
             },
             validate: (value) {
               // logic to validate the email
               return value.isNotEmpty && value.contains('@');
             },
-            save: (newValue) {
+            save: (newValue) async {
               // logic to save the new value to a persistent store
+              return Future.value();
             },
           ),
         ]),

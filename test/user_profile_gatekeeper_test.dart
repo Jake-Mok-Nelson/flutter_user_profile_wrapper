@@ -74,9 +74,9 @@ void main() {
     test('isValid returns true for a valid value', () {
       final userProperty = UserProperty(
         label: 'Name',
-        get: () => 'John',
+        get: () async => 'John',
         validate: (value) => value.isNotEmpty,
-        save: (_) {},
+        save: (value) async {},
       );
       expect(userProperty.isValid('Jane'), isTrue);
     });
@@ -84,9 +84,9 @@ void main() {
     test('isValid returns false for an invalid value', () {
       final userProperty = UserProperty(
         label: 'NonEmpty',
-        get: () => '',
+        get: () async => '',
         validate: (value) => value.isNotEmpty,
-        save: (_) {},
+        save: (value) async {},
       );
       expect(userProperty.isValid(''), isFalse);
     });
@@ -98,14 +98,14 @@ void main() {
       final props = [
         UserProperty(
             label: 'Empty',
-            get: () => '',
+            get: () async => '',
             validate: (v) => v.isNotEmpty,
-            save: (_) {}),
+            save: (v) async {}),
         UserProperty(
             label: 'NonEmpty',
-            get: () => 'John',
+            get: () async => 'John',
             validate: (v) => v.isNotEmpty,
-            save: (_) {}),
+            save: (v) async {}),
       ];
       final manager = NavigationManager(requiredUserProperties: props);
       expect(await manager.isProfileComplete(), isFalse);
@@ -116,9 +116,9 @@ void main() {
       final props = [
         UserProperty(
             label: 'Name',
-            get: () => 'John',
+            get: () async => 'John',
             validate: (v) => v.isNotEmpty,
-            save: (_) {}),
+            save: (v) async {}),
       ];
       final manager = NavigationManager(requiredUserProperties: props);
       expect(await manager.isProfileComplete(), isTrue);
@@ -131,15 +131,17 @@ void main() {
       final testProps = [
         UserProperty(
           label: 'Name',
-          get: () => '',
+          get: () async => '',
           validate: (v) => v.isNotEmpty,
-          save: (v) {},
+          save: (v) async {},
         ),
       ];
 
       await tester.pumpWidget(MaterialApp(
         home: ProfileCompletionForm(requiredUserProperties: testProps),
       ));
+      await tester.pumpAndSettle(); // Wait for the FutureBuilder to complete
+
       await tester.enterText(find.byKey(const Key('Name')), 'Alice');
       await tester.tap(find.text('Save'));
       await tester.pump();
@@ -152,16 +154,18 @@ void main() {
       final testProps = [
         UserProperty(
           label: 'Email',
-          get: () => '',
+          get: () async => '',
           validate: (v) => v.contains('@'),
-          save: (v) {},
+          save: (v) async {},
         ),
       ];
 
       await tester.pumpWidget(MaterialApp(
         home: ProfileCompletionForm(requiredUserProperties: testProps),
       ));
-      await tester.enterText(find.byKey(const Key('Email')), 'invalid');
+      await tester.pumpAndSettle(); // Wait for the FutureBuilder to complete
+
+      await tester.enterText(find.byKey(const Key('Email')), 'invalid-email');
       await tester.tap(find.text('Save'));
       await tester.pump();
 

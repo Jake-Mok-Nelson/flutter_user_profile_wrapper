@@ -10,7 +10,8 @@ class NavigationManager {
 
   Future<bool> isProfileComplete() async {
     for (final userProperty in requiredUserProperties) {
-      if (!userProperty.isValid(userProperty.get())) {
+      final value = await userProperty.get();
+      if (!userProperty.isValid(value)) {
         return false;
       }
     }

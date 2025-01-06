@@ -20,13 +20,13 @@ class UserProperty {
   final String label;
 
   /// Callback to retrieve the current value of the property
-  final String Function() get;
+  final Future<String> Function() get;
 
   /// Validation function that returns true if the value is valid
   final bool Function(String value) validate;
 
   /// Callback to persist the property value
-  final void Function(String value) save;
+  final Future<void> Function(String value) save;
 
   /// The type of keyboard to display for input
   final TextInputType inputType;

@@ -69,20 +69,29 @@ class ProfileCompletionFormState extends State<ProfileCompletionForm> {
           child: Column(
             children: <Widget>[
               ...widget.requiredUserProperties.map((prop) {
-                return TextFormField(
-                  key: Key(prop.label),
-                  keyboardType: prop.inputType,
-                  decoration: InputDecoration(labelText: prop.label),
-                  onSaved: (newValue) => prop.save(newValue!),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your ${prop.label}';
+                return FutureBuilder<String>(
+                  future: prop.get(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
                     }
+                    return TextFormField(
+                      key: Key(prop.label),
+                      keyboardType: prop.inputType,
+                      decoration: InputDecoration(labelText: prop.label),
+                      initialValue: snapshot.data,
+                      onSaved: (newValue) async => await prop.save(newValue!),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your ${prop.label}';
+                        }
 
-                    if (!prop.isValid(value)) {
-                      return 'Invalid ${prop.label}';
-                    }
-                    return null;
+                        if (!prop.isValid(value)) {
+                          return 'Invalid ${prop.label}';
+                        }
+                        return null;
+                      },
+                    );
                   },
                 );
               }),
@@ -98,10 +107,8 @@ class ProfileCompletionFormState extends State<ProfileCompletionForm> {
     );
   }
 
-  void _saveForm() {
+  void _saveForm() async {
     if (_formKey.currentState!.validate()) {
-      // It's valid. Save the form which saves each user property
-      // using the save callback provided in the UserProperty.
       _formKey.currentState!.save();
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
