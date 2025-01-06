@@ -110,7 +110,7 @@ class ProfileCompletionFormState extends State<ProfileCompletionForm> {
   void _saveForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(); // Navigate back after saving
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile saved')),
       );
