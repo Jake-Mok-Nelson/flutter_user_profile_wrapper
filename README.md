@@ -2,6 +2,13 @@
 
 Ensure that your users have provided necessary profile information before they can access your app.
 
+## Installation
+
+```yaml
+dependencies:
+  flutter_user_profile_wrapper: ^0.0.1
+```
+
 ## Usage
 
 Configure your required user properties using the `UserProperty` class:

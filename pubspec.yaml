@@ -1,5 +1,5 @@
 name: flutter_user_profile_wrapper
-description: "A new Flutter package project."
+description: "Ensure that your users have provided necessary profile information before they can access your app."
 version: 0.0.1
 homepage:
 
