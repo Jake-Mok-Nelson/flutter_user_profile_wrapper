@@ -1,6 +1,29 @@
 import 'package:flutter/material.dart';
 import 'user_property.dart';
 
+/// A form widget that collects required user profile information.
+///
+/// This widget creates a form with input fields for each required user property.
+/// It validates that all user properties have unique labels and ensures proper
+/// input validation for each field.
+///
+/// Example:
+/// ```dart
+/// ProfileCompletionForm(
+///   requiredUserProperties: [
+///     UserProperty(label: 'Name', inputType: TextInputType.text),
+///     UserProperty(label: 'Email', inputType: TextInputType.emailAddress),
+///   ],
+/// )
+/// ```
+///
+/// The form includes:
+/// * Input fields for each required property
+/// * Validation for empty fields and property-specific validation
+/// * A save button that validates and saves all input
+///
+/// Throws an [ArgumentError] if any user properties have duplicate labels.
+
 class ProfileCompletionForm extends StatefulWidget {
   final List<UserProperty> requiredUserProperties;
 
@@ -77,6 +100,8 @@ class ProfileCompletionFormState extends State<ProfileCompletionForm> {
 
   void _saveForm() {
     if (_formKey.currentState!.validate()) {
+      // It's valid. Save the form which saves each user property
+      // using the save callback provided in the UserProperty.
       _formKey.currentState!.save();
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
