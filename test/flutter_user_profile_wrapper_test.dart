@@ -1,122 +1,171 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_user_profile_wrapper/flutter_user_profile_wrapper.dart';
-import 'package:flutter_user_profile_wrapper/src/user_property_manager.dart';
+import 'package:flutter_user_profile_wrapper/src/profile_completion_form.dart';
 import 'package:flutter_user_profile_wrapper/src/navigation_manager.dart';
+
+class FakeNavigationManager extends NavigationManager {
+  FakeNavigationManager({required super.requiredUserProperties});
+
+  Completer<bool>? isProfileCompleteCompleter;
+
+  @override
+  Future<bool> isProfileComplete() {
+    return isProfileCompleteCompleter?.future ?? super.isProfileComplete();
+  }
+
+  @override
+  Widget navigateToProfileCompletionScreen(BuildContext context) {
+    return const Text('Mock Profile Completion Screen');
+  }
+}
 
 void main() {
   group('ProfileWrapper', () {
-    late UserPropertyManager userPropertyManager;
-    late NavigationManager navigationManager;
-
-    setUp(() {
-      userPropertyManager = UserPropertyManager(
-        getPropertyFunction: (key) {
-          // Implement your logic to get the property
-        },
-        savePropertyFunction: (key, value) {
-          // Implement your logic to save the property
-        },
-      );
-      navigationManager = NavigationManager(userPropertyManager: userPropertyManager);
-    });
-
-    testWidgets('navigates to child widget if profile is complete', (WidgetTester tester) async {
-      userPropertyManager.defineProperty('name', 'John Doe');
-      userPropertyManager.defineProperty('email', 'john.doe@example.com');
-
+    testWidgets('shows CircularProgressIndicator while loading',
+        (tester) async {
+      final manager = FakeNavigationManager(requiredUserProperties: []);
+      manager.isProfileCompleteCompleter = Completer<bool>();
       await tester.pumpWidget(MaterialApp(
         home: ProfileWrapper(
-          child: Text('Child Widget'),
-          userPropertyManager: userPropertyManager,
-          navigationManager: navigationManager,
+          requiredUserProperties: const [],
+          navigationManager: manager,
+          child: const Text('Child Widget'),
         ),
       ));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      manager.isProfileCompleteCompleter!.complete(true);
+      await tester.pumpAndSettle();
+    });
 
+    testWidgets('shows child if profile is complete', (tester) async {
+      final manager = FakeNavigationManager(requiredUserProperties: []);
+      manager.isProfileCompleteCompleter = Completer<bool>()..complete(true);
+      await tester.pumpWidget(MaterialApp(
+        home: ProfileWrapper(
+          requiredUserProperties: const [],
+          navigationManager: manager,
+          child: const Text('Child Widget'),
+        ),
+      ));
       await tester.pump();
-
       expect(find.text('Child Widget'), findsOneWidget);
     });
 
-    testWidgets('navigates to profile completion screen if profile is incomplete', (WidgetTester tester) async {
-      userPropertyManager.defineProperty('name', 'John Doe');
-
+    testWidgets('navigates to profile completion screen if not complete',
+        (tester) async {
+      final manager = FakeNavigationManager(requiredUserProperties: []);
+      manager.isProfileCompleteCompleter = Completer<bool>()..complete(false);
       await tester.pumpWidget(MaterialApp(
         home: ProfileWrapper(
-          child: Text('Child Widget'),
-          userPropertyManager: userPropertyManager,
-          navigationManager: navigationManager,
+          requiredUserProperties: const [],
+          navigationManager: manager,
+          child: const Text('Child Widget'),
         ),
       ));
-
-      await tester.pump();
-
-      expect(find.text('Please complete your profile.'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.text('Mock Profile Completion Screen'), findsOneWidget);
     });
   });
 
-  group('UserPropertyManager', () {
-    late UserPropertyManager userPropertyManager;
-
-    setUp(() {
-      userPropertyManager = UserPropertyManager(
-        getPropertyFunction: (key) {
-          // Implement your logic to get the property
-        },
-        savePropertyFunction: (key, value) {
-          // Implement your logic to save the property
-        },
+  group('UserProperty', () {
+    test('isValid returns true for a valid value', () {
+      final userProperty = UserProperty(
+        label: 'Name',
+        get: () => 'John',
+        validate: (value) => value.isNotEmpty,
+        save: (_) {},
       );
+      expect(userProperty.isValid('Jane'), isTrue);
     });
 
-    test('defines and gets user properties', () {
-      userPropertyManager.defineProperty('name', 'John Doe');
-      expect(userPropertyManager.getProperty('name'), 'John Doe');
-    });
-
-    test('validates user properties', () {
-      userPropertyManager.defineProperty('email', 'john.doe@example.com');
-      bool isValid = userPropertyManager.validateProperty('email', (value) => value != null && value.contains('@'));
-      expect(isValid, true);
-    });
-
-    test('saves user properties', () {
-      userPropertyManager.saveProperty('name', 'John Doe');
-      expect(userPropertyManager.getProperty('name'), 'John Doe');
+    test('isValid returns false for an invalid value', () {
+      final userProperty = UserProperty(
+        label: 'NonEmpty',
+        get: () => '',
+        validate: (value) => value.isNotEmpty,
+        save: (_) {},
+      );
+      expect(userProperty.isValid(''), isFalse);
     });
   });
 
   group('NavigationManager', () {
-    late UserPropertyManager userPropertyManager;
-    late NavigationManager navigationManager;
-
-    setUp(() {
-      userPropertyManager = UserPropertyManager(
-        getPropertyFunction: (key) {
-          // Implement your logic to get the property
-        },
-        savePropertyFunction: (key, value) {
-          // Implement your logic to save the property
-        },
-      );
-      navigationManager = NavigationManager(userPropertyManager: userPropertyManager);
+    test('isProfileComplete returns false if any property is invalid',
+        () async {
+      final props = [
+        UserProperty(
+            label: 'Empty',
+            get: () => '',
+            validate: (v) => v.isNotEmpty,
+            save: (_) {}),
+        UserProperty(
+            label: 'NonEmpty',
+            get: () => 'John',
+            validate: (v) => v.isNotEmpty,
+            save: (_) {}),
+      ];
+      final manager = NavigationManager(requiredUserProperties: props);
+      expect(await manager.isProfileComplete(), isFalse);
     });
 
-    test('checks profile completeness', () async {
-      userPropertyManager.defineProperty('name', 'John Doe');
-      userPropertyManager.defineProperty('email', 'john.doe@example.com');
-      bool isComplete = await navigationManager.isProfileComplete();
-      expect(isComplete, true);
+    test('isProfileComplete returns true if all properties are valid',
+        () async {
+      final props = [
+        UserProperty(
+            label: 'Name',
+            get: () => 'John',
+            validate: (v) => v.isNotEmpty,
+            save: (_) {}),
+      ];
+      final manager = NavigationManager(requiredUserProperties: props);
+      expect(await manager.isProfileComplete(), isTrue);
     });
+  });
 
-    testWidgets('navigates to profile completion screen', (WidgetTester tester) async {
+  group('ProfileCompletionForm', () {
+    testWidgets('validates and saves form when inputs are valid',
+        (tester) async {
+      final testProps = [
+        UserProperty(
+          label: 'Name',
+          get: () => '',
+          validate: (v) => v.isNotEmpty,
+          save: (v) {},
+        ),
+      ];
+
       await tester.pumpWidget(MaterialApp(
-        home: navigationManager.navigateToProfileCompletionScreen(tester.element(find.byType(MaterialApp))),
+        home: ProfileCompletionForm(requiredUserProperties: testProps),
       ));
-
+      await tester.enterText(find.byKey(const Key('Name')), 'Alice');
+      await tester.tap(find.text('Save'));
       await tester.pump();
 
-      expect(find.text('Please complete your profile.'), findsOneWidget);
+      expect(find.text('Please enter your Name'), findsNothing);
+      expect(find.text('Invalid Name'), findsNothing);
+    });
+
+    testWidgets('shows validation error with invalid input', (tester) async {
+      final testProps = [
+        UserProperty(
+          label: 'Email',
+          get: () => '',
+          validate: (v) => v.contains('@'),
+          save: (v) {},
+        ),
+      ];
+
+      await tester.pumpWidget(MaterialApp(
+        home: ProfileCompletionForm(requiredUserProperties: testProps),
+      ));
+      await tester.enterText(find.byKey(const Key('Email')), 'invalid');
+      await tester.tap(find.text('Save'));
+      await tester.pump();
+
+      expect(find.text('Invalid Email'), findsOneWidget);
     });
   });
 }

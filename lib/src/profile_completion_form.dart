@@ -1,34 +1,43 @@
 import 'package:flutter/material.dart';
-import 'user_property_manager.dart';
+import 'user_property.dart';
 
 class ProfileCompletionForm extends StatefulWidget {
-  final UserPropertyManager userPropertyManager;
+  final List<UserProperty> requiredUserProperties;
 
-  ProfileCompletionForm({required this.userPropertyManager});
+  const ProfileCompletionForm(
+      {super.key, required this.requiredUserProperties});
 
   @override
-  _ProfileCompletionFormState createState() => _ProfileCompletionFormState();
+  ProfileCompletionFormState createState() => ProfileCompletionFormState();
 }
 
-class _ProfileCompletionFormState extends State<ProfileCompletionForm> {
+class ProfileCompletionFormState extends State<ProfileCompletionForm> {
   final _formKey = GlobalKey<FormState>();
-  final Map<String, TextEditingController> _controllers = {};
-  final Map<String, TextInputType> _inputTypes = {};
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    widget.userPropertyManager._userProperties.forEach((key, value) {
-      _controllers[key] = TextEditingController(text: widget.userPropertyManager.getProperty(key));
-      _inputTypes[key] = TextInputType.text; // Default to TextInputType.text
-    });
+
+    // Ensure that every user property has a unique label
+    if (widget.requiredUserProperties
+            .map((userProperty) => userProperty.label)
+            .toSet()
+            .length !=
+        widget.requiredUserProperties.length) {
+      throw ArgumentError('Every user property must have a unique label');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Complete Your Profile'),
+        title: const Text('Complete Your Profile'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -36,23 +45,28 @@ class _ProfileCompletionFormState extends State<ProfileCompletionForm> {
           key: _formKey,
           child: Column(
             children: <Widget>[
-              ..._controllers.keys.map((key) {
+              ...widget.requiredUserProperties.map((prop) {
                 return TextFormField(
-                  controller: _controllers[key],
-                  keyboardType: _inputTypes[key],
-                  decoration: InputDecoration(labelText: key),
+                  key: Key(prop.label),
+                  keyboardType: prop.inputType,
+                  decoration: InputDecoration(labelText: prop.label),
+                  onSaved: (newValue) => prop.save(newValue!),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your $key';
+                      return 'Please enter your ${prop.label}';
+                    }
+
+                    if (!prop.isValid(value)) {
+                      return 'Invalid ${prop.label}';
                     }
                     return null;
                   },
                 );
-              }).toList(),
-              SizedBox(height: 20),
+              }),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _saveForm,
-                child: Text('Save'),
+                child: const Text('Save'),
               ),
             ],
           ),
@@ -64,11 +78,9 @@ class _ProfileCompletionFormState extends State<ProfileCompletionForm> {
   void _saveForm() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      _controllers.forEach((key, controller) {
-        widget.userPropertyManager.saveProperty(key, controller.text);
-      });
+      Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile saved')),
+        const SnackBar(content: Text('Profile saved')),
       );
     }
   }
