@@ -1,3 +1,7 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+- Initial release of flutter_user_profile_wrapper
+- Introduced ProfileWrapper and UserProperty
+
+
+
