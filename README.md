@@ -1,4 +1,4 @@
-# flutter_user_profile_wrapper
+# user_profile_gatekeeper
 
 Ensure that your users have provided necessary profile information before they can access your app.
 
@@ -6,7 +6,7 @@ Ensure that your users have provided necessary profile information before they c
 
 ```yaml
 dependencies:
-  flutter_user_profile_wrapper: ^0.0.1
+  user_profile_gatekeeper: ^0.0.1
 ```
 
 ## Usage
@@ -21,9 +21,9 @@ UserProperty(
 )
 ```
 
-Wrap your app with `ProfileWrapper` to ensure necessary profile data is collected:
+Wrap your app with `UserProfileGatekeeper` to ensure necessary profile data is collected:
 ```dart
-ProfileWrapper(
+UserProfileGatekeeper(
   requiredUserProperties: [...],
   child: HomeScreen(),
 )

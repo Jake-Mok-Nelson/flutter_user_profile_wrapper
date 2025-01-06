@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_user_profile_wrapper/flutter_user_profile_wrapper.dart';
-import 'package:flutter_user_profile_wrapper/src/profile_completion_form.dart';
-import 'package:flutter_user_profile_wrapper/src/navigation_manager.dart';
+import 'package:user_profile_gatekeeper/user_profile_gatekeeper.dart';
+import 'package:user_profile_gatekeeper/src/profile_completion_form.dart';
+import 'package:user_profile_gatekeeper/src/navigation_manager.dart';
 
 class FakeNavigationManager extends NavigationManager {
   FakeNavigationManager({required super.requiredUserProperties});
@@ -29,7 +29,7 @@ void main() {
       final manager = FakeNavigationManager(requiredUserProperties: []);
       manager.isProfileCompleteCompleter = Completer<bool>();
       await tester.pumpWidget(MaterialApp(
-        home: ProfileWrapper(
+        home: UserProfileGatekeeper(
           requiredUserProperties: const [],
           navigationManager: manager,
           child: const Text('Child Widget'),
@@ -44,7 +44,7 @@ void main() {
       final manager = FakeNavigationManager(requiredUserProperties: []);
       manager.isProfileCompleteCompleter = Completer<bool>()..complete(true);
       await tester.pumpWidget(MaterialApp(
-        home: ProfileWrapper(
+        home: UserProfileGatekeeper(
           requiredUserProperties: const [],
           navigationManager: manager,
           child: const Text('Child Widget'),
@@ -59,7 +59,7 @@ void main() {
       final manager = FakeNavigationManager(requiredUserProperties: []);
       manager.isProfileCompleteCompleter = Completer<bool>()..complete(false);
       await tester.pumpWidget(MaterialApp(
-        home: ProfileWrapper(
+        home: UserProfileGatekeeper(
           requiredUserProperties: const [],
           navigationManager: manager,
           child: const Text('Child Widget'),

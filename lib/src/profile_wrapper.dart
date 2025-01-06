@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_user_profile_wrapper/src/user_property.dart';
+import 'package:user_profile_gatekeeper/src/user_property.dart';
 import 'navigation_manager.dart';
 
 /// A widget that ensures all required user profile properties are completed
@@ -7,7 +7,7 @@ import 'navigation_manager.dart';
 ///
 /// If the profile is incomplete, it will display a profile completion form
 /// instead of the child widget.
-class ProfileWrapper extends StatelessWidget {
+class UserProfileGatekeeper extends StatelessWidget {
   /// The widget to display when the profile is complete
   final Widget child;
 
@@ -17,7 +17,7 @@ class ProfileWrapper extends StatelessWidget {
   /// Optional navigation manager for custom navigation behavior
   final NavigationManager? navigationManager;
 
-  const ProfileWrapper({
+  const UserProfileGatekeeper({
     super.key,
     required this.child,
     required this.requiredUserProperties,

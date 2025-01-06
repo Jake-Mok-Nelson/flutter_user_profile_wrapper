@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_user_profile_wrapper/flutter_user_profile_wrapper.dart';
+import 'package:user_profile_gatekeeper/user_profile_gatekeeper.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       // you want to be logged in already to ensure access to user properties
-      home: ProfileWrapper(
+      home: UserProfileGatekeeper(
         requiredUserProperties: List<UserProperty>.unmodifiable([
           UserProperty(
             label: 'Name',

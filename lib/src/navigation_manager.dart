@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_user_profile_wrapper/src/profile_completion_form.dart';
+import 'package:user_profile_gatekeeper/src/profile_completion_form.dart';
 import 'user_property.dart';
 
 /// Manages navigation behavior for profile completion forms.
