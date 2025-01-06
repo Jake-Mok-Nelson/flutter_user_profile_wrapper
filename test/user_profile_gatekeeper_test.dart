@@ -9,67 +9,26 @@ import 'package:user_profile_gatekeeper/src/navigation_manager.dart';
 class FakeNavigationManager extends NavigationManager {
   FakeNavigationManager({required super.requiredUserProperties});
 
-  Completer<bool>? isProfileCompleteCompleter;
+  // Function to override isProfileComplete behavior
+  Future<bool> Function()? overrideIsProfileComplete;
+  bool navigateToProfileCompletionScreenCalled = false;
 
   @override
   Future<bool> isProfileComplete() {
-    return isProfileCompleteCompleter?.future ?? super.isProfileComplete();
+    if (overrideIsProfileComplete != null) {
+      return overrideIsProfileComplete!();
+    }
+    return super.isProfileComplete();
   }
 
   @override
-  Widget navigateToProfileCompletionScreen(BuildContext context) {
-    return const Text('Mock Profile Completion Screen');
+  navigateToProfileCompletionScreen(BuildContext context) {
+    navigateToProfileCompletionScreenCalled = true;
+    return super.navigateToProfileCompletionScreen(context);
   }
 }
 
 void main() {
-  group('ProfileWrapper', () {
-    testWidgets('shows CircularProgressIndicator while loading',
-        (tester) async {
-      final manager = FakeNavigationManager(requiredUserProperties: []);
-      manager.isProfileCompleteCompleter = Completer<bool>();
-      await tester.pumpWidget(MaterialApp(
-        home: UserProfileGatekeeper(
-          requiredUserProperties: const [],
-          navigationManager: manager,
-          child: const Text('Child Widget'),
-        ),
-      ));
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      manager.isProfileCompleteCompleter!.complete(true);
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('shows child if profile is complete', (tester) async {
-      final manager = FakeNavigationManager(requiredUserProperties: []);
-      manager.isProfileCompleteCompleter = Completer<bool>()..complete(true);
-      await tester.pumpWidget(MaterialApp(
-        home: UserProfileGatekeeper(
-          requiredUserProperties: const [],
-          navigationManager: manager,
-          child: const Text('Child Widget'),
-        ),
-      ));
-      await tester.pump();
-      expect(find.text('Child Widget'), findsOneWidget);
-    });
-
-    testWidgets('navigates to profile completion screen if not complete',
-        (tester) async {
-      final manager = FakeNavigationManager(requiredUserProperties: []);
-      manager.isProfileCompleteCompleter = Completer<bool>()..complete(false);
-      await tester.pumpWidget(MaterialApp(
-        home: UserProfileGatekeeper(
-          requiredUserProperties: const [],
-          navigationManager: manager,
-          child: const Text('Child Widget'),
-        ),
-      ));
-      await tester.pumpAndSettle();
-      expect(find.text('Mock Profile Completion Screen'), findsOneWidget);
-    });
-  });
-
   group('UserProperty', () {
     test('isValid returns true for a valid value', () {
       final userProperty = UserProperty(
@@ -170,6 +129,102 @@ void main() {
       await tester.pump();
 
       expect(find.text('Invalid Email'), findsOneWidget);
+    });
+  });
+
+  group('UserProfileGatekeeper', () {
+    testWidgets('displays child when profile is complete', (tester) async {
+      // Arrange
+      final fakeManager = FakeNavigationManager(requiredUserProperties: []);
+      // Simulate profile completion
+      fakeManager.overrideIsProfileComplete = () async => true;
+
+      // Act
+      await tester.pumpWidget(MaterialApp(
+        home: UserProfileGatekeeper(
+          requiredUserProperties: [],
+          navigationManager: fakeManager,
+          child: const Text('Child Widget'),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(find.text('Child Widget'), findsOneWidget);
+    });
+
+    testWidgets('navigates to profile completion when profile is incomplete',
+        (tester) async {
+      // Arrange
+      final fakeManager = FakeNavigationManager(requiredUserProperties: []);
+      // Simulate profile incompletion
+      fakeManager.overrideIsProfileComplete = () async => false;
+
+      final prop = UserProperty(
+        label: 'Name',
+        get: () async => '',
+        validate: (v) => v.isNotEmpty,
+        save: (v) async {},
+      );
+
+      // Act
+      await tester.pumpWidget(MaterialApp(
+        home: UserProfileGatekeeper(
+          requiredUserProperties: [
+            prop,
+          ],
+          navigationManager: fakeManager,
+          child: const Text('Child Widget'),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Assert
+      // Since navigation is handled internally, verify that navigation method was called
+      expect(fakeManager.navigateToProfileCompletionScreenCalled, isTrue);
+      // Optionally, verify that the child is not displayed
+      expect(find.text('Child Widget'), findsNothing);
+      expect(find.text('Complete Your Profile'), findsOne);
+    });
+
+    testWidgets(
+        'navigates to profile completion for missing property and then to child when complete',
+        (tester) async {
+      String storedValue = '';
+      final prop = UserProperty(
+        label: 'Name',
+        get: () async => storedValue,
+        validate: (v) => v.isNotEmpty,
+        save: (v) async => storedValue = v,
+      );
+      debugPrint('prop: $prop');
+
+      // Act
+      await tester.pumpWidget(MaterialApp(
+        home: UserProfileGatekeeper(
+          requiredUserProperties: [
+            prop,
+          ],
+          child: const Text('Child Widget'),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Assert
+      // verify that the profile completion form is displayed
+      expect(find.text('Child Widget'), findsNothing);
+      expect(find.byType(ProfileCompletionForm), findsOneWidget);
+
+      // Act
+      // find the fields and enter a valid value
+      await tester.enterText(find.byKey(const Key('Name')), 'John');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      // Assert
+      // verify that the child is now displayed
+      expect(find.text('Child Widget'), findsOneWidget);
+      expect(find.text('Complete Your Profile'), findsNothing);
     });
   });
 }

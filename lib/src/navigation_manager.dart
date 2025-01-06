@@ -11,6 +11,9 @@ class NavigationManager {
   Future<bool> isProfileComplete() async {
     for (final userProperty in requiredUserProperties) {
       final value = await userProperty.get();
+      if (value.isEmpty || value == '') {
+        return false;
+      }
       if (!userProperty.isValid(value)) {
         return false;
       }
@@ -18,12 +21,21 @@ class NavigationManager {
     return true;
   }
 
-  Widget navigateToChild(BuildContext context, Widget child) {
-    return child;
+  void navigateToChild(BuildContext context, Widget child) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => child),
+    );
   }
 
-  Widget navigateToProfileCompletionScreen(BuildContext context) {
-    return ProfileCompletionForm(
-        requiredUserProperties: requiredUserProperties);
+  void navigateToProfileCompletionScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfileCompletionForm(
+          requiredUserProperties: requiredUserProperties,
+        ),
+      ),
+    );
   }
 }

@@ -7,43 +7,50 @@ import 'navigation_manager.dart';
 ///
 /// If the profile is incomplete, it will display a profile completion form
 /// instead of the child widget.
-class UserProfileGatekeeper extends StatelessWidget {
-  /// The widget to display when the profile is complete
-  final Widget child;
-
-  /// List of user properties that must be validated
+class UserProfileGatekeeper extends StatefulWidget {
   final List<UserProperty> requiredUserProperties;
-
-  /// Optional navigation manager for custom navigation behavior
   final NavigationManager? navigationManager;
+  final Widget child;
 
   const UserProfileGatekeeper({
     super.key,
-    required this.child,
     required this.requiredUserProperties,
     this.navigationManager,
+    required this.child,
   });
 
   @override
-  Widget build(BuildContext context) {
-    // Use provided navigation manager or create a default one
-    final manager = navigationManager ??
-        NavigationManager(requiredUserProperties: requiredUserProperties);
+  UserProfileGatekeeperState createState() => UserProfileGatekeeperState();
+}
 
-    return FutureBuilder<bool>(
-      future: manager.isProfileComplete(),
-      builder: (context, snapshot) {
-        // Show loading indicator while checking profile completion
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasData && snapshot.data == true) {
-          // Profile is complete, show the child widget
-          return child;
-        } else {
-          // Profile is incomplete, show the completion form
-          return manager.navigateToProfileCompletionScreen(context);
-        }
-      },
-    );
+class UserProfileGatekeeperState extends State<UserProfileGatekeeper> {
+  late final NavigationManager navigationManager;
+
+  @override
+  void initState() {
+    super.initState();
+    navigationManager = widget.navigationManager ??
+        NavigationManager(
+            requiredUserProperties: widget.requiredUserProperties);
+    _checkProfile(context);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> _checkProfile(BuildContext context) async {
+    bool isComplete = await navigationManager.isProfileComplete();
+    if (!isComplete) {
+      context.mounted
+          ? navigationManager.navigateToProfileCompletionScreen(context)
+          : throw Exception('UserProfileGatekeeper disposed');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
