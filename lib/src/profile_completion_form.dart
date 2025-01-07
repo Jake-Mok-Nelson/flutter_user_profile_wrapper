@@ -65,6 +65,7 @@ class ProfileCompletionFormState extends State<ProfileCompletionForm> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           key: _formKey,
           child: Column(
             children: <Widget>[
