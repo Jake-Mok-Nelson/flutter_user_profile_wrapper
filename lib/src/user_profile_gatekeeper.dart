@@ -25,6 +25,7 @@ class UserProfileGatekeeper extends StatefulWidget {
 
 class UserProfileGatekeeperState extends State<UserProfileGatekeeper> {
   late final NavigationManager navigationManager;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -42,6 +43,9 @@ class UserProfileGatekeeperState extends State<UserProfileGatekeeper> {
 
   Future<void> _checkProfile(BuildContext context) async {
     bool isComplete = await navigationManager.isProfileComplete();
+    setState(() {
+      _isLoading = false;
+    });
     if (!isComplete) {
       context.mounted
           ? navigationManager.navigateToProfileCompletionScreen(context)
@@ -51,6 +55,9 @@ class UserProfileGatekeeperState extends State<UserProfileGatekeeper> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return widget.child;
   }
 }
