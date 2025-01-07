@@ -1,0 +1,17 @@
+
+name: Bash Script Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Tests
+        run: ./scripts/run_tests.sh
