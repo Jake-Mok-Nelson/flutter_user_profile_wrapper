@@ -15,27 +15,27 @@ class MyApp extends StatelessWidget {
       home: UserProfileGatekeeper(
         requiredUserProperties: List<UserProperty>.unmodifiable([
           UserProperty(
-            label: 'Name',
-            get: () async => Future.value('John Doe'),
-            validate: (value) => value.isNotEmpty,
-            save: (newValue) async {
-              // logic to save the new value to a persistent store
-              return Future.value();
-            },
-          ),
-          UserProperty(
-            label: 'Email',
+            label: 'displayName',
             get: () async {
-              // logic to get the email from a persistent store
-              return Future.value('myEmail@email.com');
+              // Call your APIs here to get the value of a property and see if it's set
+              // final user = FirebaseAuth.instance.currentUser;
+              // return user?.displayName ?? '';
+              return Future.value('John');
             },
-            validate: (value) {
-              // logic to validate the email
-              return value.isNotEmpty && value.contains('@');
+            // Validate that the value is not empty and is between 2 and 50 characters
+            // Validation occurs on load and when the user tries to save
+            validate: (String value) => switch (value) {
+              String s when s.isEmpty => false,
+              String s when s.length < 2 || s.length > 50 => false,
+
+              // Is AlphaNumeric
+              String s when !RegExp(r'^[a-zA-Z0-9 ]+$').hasMatch(s) => false,
+              _ => true,
             },
-            save: (newValue) async {
-              // logic to save the new value to a persistent store
-              return Future.value();
+            save: (String value) async {
+              // Store the new value in a persistent place to proceed with navigation
+              // final user = FirebaseAuth.instance.currentUser;
+              // await user?.updateDisplayName(value);
             },
           ),
         ]),
