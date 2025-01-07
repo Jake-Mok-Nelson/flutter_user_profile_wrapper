@@ -72,6 +72,7 @@ test_invalid_argument() {
 echo "Running bump_version.sh tests..."
 echo "---------------------------------"
 for test_func in $(compgen -A function | grep "^test_"); do
+    echo "--- Running $test_func"
     $test_func
 done
 echo "All tests completed."
