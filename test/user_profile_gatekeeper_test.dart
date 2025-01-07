@@ -82,6 +82,21 @@ void main() {
       final manager = NavigationManager(requiredUserProperties: props);
       expect(await manager.isProfileComplete(), isTrue);
     });
+
+    test('Save function cannot run until isValid is true', () async {
+      String storedValue = '';
+      final prop = UserProperty(
+        label: 'Name',
+        get: () async => storedValue,
+        validate: (v) => v.isNotEmpty && v.length >= 2,
+        save: (v) async => storedValue = v,
+      );
+
+      expect(prop.isValid(''), isFalse);
+
+      await prop.save(storedValue = 'John');
+      expect(prop.save(storedValue), isA<Future<void>>());
+    });
   });
 
   group('ProfileCompletionForm', () {
@@ -197,7 +212,6 @@ void main() {
         validate: (v) => v.isNotEmpty,
         save: (v) async => storedValue = v,
       );
-      debugPrint('prop: $prop');
 
       // Act
       await tester.pumpWidget(MaterialApp(
@@ -228,7 +242,3 @@ void main() {
     });
   });
 }
-
-// TODO: Save function cannot run until isValid is true
-
-// TODO: Add another test case, where the user enters an invalid value, then a valid value, and then the child is displayed.
