@@ -1,7 +1,8 @@
-## 0.0.1
+## 0.1.0
 
-- Initial release of flutter_user_profile_wrapper
-- Introduced ProfileWrapper and UserProperty
+- Initial dev release.
+- Add `UserProfileGatekeeper`
+
 
 
 
