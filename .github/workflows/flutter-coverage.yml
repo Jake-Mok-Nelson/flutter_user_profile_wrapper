@@ -1,0 +1,28 @@
+name: Test Coverage > 70%
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+          with: '3.24.x'
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Run tests with coverage
+        run: flutter test --coverage
+      - name: Check coverage
+        run: |
+          COVERAGE=$(lcov --summary coverage/lcov.info | grep lines | awk '{print $4}' | tr -d '%')
+          if [ "$COVERAGE" -lt 70 ]; then
+            echo "Code coverage is below 70%"
+            exit 1
+          fi
