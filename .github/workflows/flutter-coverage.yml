@@ -18,8 +18,11 @@ jobs:
         run: flutter pub get
       - name: Run tests with coverage
         run: flutter test --coverage
+      - name: Install lcov
+        run: sudo apt-get install -y lcov
       - name: Check coverage
         run: |
+          set -e
           COVERAGE=$(lcov --summary coverage/lcov.info | grep lines | awk '{print $4}' | tr -d '%')
           if [ "$COVERAGE" -lt 70 ]; then
             echo "Code coverage is below 70%"
