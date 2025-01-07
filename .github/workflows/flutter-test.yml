@@ -1,4 +1,4 @@
-name: Flutter CI
+name: Flutter Test
 
 on:
   pull_request:
