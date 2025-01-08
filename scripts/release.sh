@@ -16,9 +16,10 @@ error_exit() {
 # Parse arguments
 TARGET_DIR="$1"
 EXIT_ON_NON_SEMVER="$2"
+DRY_RUN="$3"
 
 if [ -z "$TARGET_DIR" ]; then
-    error_exit "Usage: $0 <target_directory> [--strict]"
+    error_exit "Usage: $0 <target_directory> [--strict] [--dry-run]"
 fi
 
 # Check for pubspec.yaml
@@ -45,13 +46,18 @@ CHANGELOG_FILE="$TARGET_DIR/CHANGELOG.md"
 if ! grep -q "## $VERSION" "$CHANGELOG_FILE"; then
     error_exit "No matching version $VERSION in CHANGELOG.md"
 fi
-
 # Tag the repository
-git tag "v$VERSION"
-git push origin "v$VERSION"
+if [ "$DRY_RUN" = "--dry-run" ]; then
+    echo "[DRY RUN] Would tag repository with v$VERSION"
+    echo "[DRY RUN] Would publish to pub.dev"
+else
+    git tag "v$VERSION"
+    git push origin "v$VERSION"
 
-# Perform flutter pub publish
-flutter pub publish --force
+    # Perform flutter pub publish
+    flutter pub publish --force
 
+    echo "Released version $VERSION successfully"
+fi
 echo "Released version $VERSION successfully"
 

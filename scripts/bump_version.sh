@@ -14,6 +14,7 @@ if [ "$#" -ne 1 ] && [ "$#" -ne 2 ]; then
   exit 1
 fi
 
+
 BUMP_TYPE=$1
 
 # Accept the pubspec file as a second argument

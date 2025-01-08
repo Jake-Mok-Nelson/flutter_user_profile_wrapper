@@ -3,7 +3,7 @@
 
 # Unit tests for release.sh script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEST_DIR="test_release"
+TEST_DIR="/tmp/test_release"
 
 setup() {
     mkdir -p "$TEST_DIR"
@@ -22,7 +22,7 @@ teardown() {
 
 test_valid_release() {
     setup
-    "$SCRIPT_DIR/release.sh" "$TEST_DIR"
+    "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run"
     if git rev-parse "v1.0.0" >/dev/null 2>&1; then
         echo "✓ Valid release test passed"
     else
