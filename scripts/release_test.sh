@@ -61,7 +61,7 @@ test_dry_run_no_tag_on_dry_run() {
 # than major.minor.patch
 test_tag_already_exists() {
     setup
-    git tag "1.0.0"
+    git tag "1.2.0"
     echo "version: 1.0.0" > "$TEST_DIR/pubspec.yaml"
     if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" 2>&1 | grep -q "already exists as a git tag"; then
         echo "✓ Tag already exists test passed"
