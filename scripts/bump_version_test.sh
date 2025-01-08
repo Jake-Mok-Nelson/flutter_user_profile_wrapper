@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Colors for output
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
+
 # Unit tests for bump_version.sh script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_PUBSPEC="test_pubspec.yaml"
@@ -18,9 +23,9 @@ test_patch_bump() {
     $SCRIPT_DIR/bump_version.sh patch "$TEST_PUBSPEC"
     VERSION=$(grep '^version:' "$TEST_PUBSPEC" | awk '{print $2}')
     if [ "$VERSION" = "1.0.1" ]; then
-        echo "✓ Patch bump test passed"
+        echo -e "${GREEN}✓ Patch bump test passed${NC}"
     else
-        echo "✗ Patch bump test failed"
+        echo -e "${RED}✗ Patch bump test failed${NC}"
         exit 1
     fi
     teardown
@@ -32,9 +37,9 @@ test_minor_bump() {
     $SCRIPT_DIR/bump_version.sh minor "$TEST_PUBSPEC"
     VERSION=$(grep '^version:' "$TEST_PUBSPEC" | awk '{print $2}')
     if [ "$VERSION" = "1.1.0" ]; then
-        echo "✓ Minor bump test passed"
+        echo -e "${GREEN}✓ Minor bump test passed${NC}"
     else
-        echo "✗ Minor bump test failed"
+        echo -e "${RED}✗ Minor bump test failed${NC}"
         exit 1
     fi
     teardown
@@ -46,25 +51,23 @@ test_major_bump() {
     $SCRIPT_DIR/bump_version.sh major "$TEST_PUBSPEC"
     VERSION=$(grep '^version:' "$TEST_PUBSPEC" | awk '{print $2}')
     if [ "$VERSION" = "2.0.0" ]; then
-        echo "✓ Major bump test passed"
+        echo -e "${GREEN}✓ Major bump test passed${NC}"
     else
-        echo "✗ Major bump test failed"
+        echo -e "${RED}✗ Major bump test failed${NC}"
         exit 1
     fi
     teardown
 }
 
-
 test_invalid_argument() {
     setup
     $SCRIPT_DIR/bump_version.sh invalid_argument "$TEST_PUBSPEC"
     if [ $? -eq 1 ]; then
-        echo "✓ Invalid argument test passed"
+        echo -e "${GREEN}✓ Invalid argument test passed${NC}"
     else
-        echo "✗ Invalid argument test failed"
+        echo -e "${RED}✗ Invalid argument test failed${NC}"
         exit 1
     fi
-        
     teardown
 }
 

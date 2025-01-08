@@ -4,6 +4,11 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR="/tmp/test_release_${RANDOM}_$(date +%s)"
 
+# Colors for output
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
 setup() {
     mkdir -p "$TEST_DIR"
     echo "version: 1.0.0" > "$TEST_DIR/pubspec.yaml"
@@ -23,9 +28,9 @@ test_missing_pubspec() {
     setup
     rm "$TEST_DIR/pubspec.yaml"
     if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" 2>&1 | grep -q "pubspec.yaml not found"; then
-        echo "✓ Missing pubspec test passed"
+        echo -e "${GREEN}✓ Missing pubspec test passed${NC}"
     else
-        echo "✗ Missing pubspec test failed"
+        echo -e "${RED}✗ Missing pubspec test failed${NC}"
         exit 1
     fi
     teardown
@@ -36,9 +41,9 @@ test_invalid_semver_strict() {
     setup
     echo "version: 1.0.0-beta" > "$TEST_DIR/pubspec.yaml"
     if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--strict" "--dry-run" 2>&1 | grep -q "is not a valid semver"; then
-        echo "✓ Invalid semver with strict flag test passed"
+        echo -e "${GREEN}✓ Invalid semver with strict flag test passed${NC}"
     else
-        echo "✗ Invalid semver with strict flag test failed"
+        echo -e "${RED}✗ Invalid semver with strict flag test failed${NC}"
         exit 1
     fi
     teardown
@@ -49,9 +54,9 @@ test_dry_run_no_tag_on_dry_run() {
     setup
     "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" >/dev/null
     if ! git rev-parse "v1.0.0" >/dev/null 2>&1; then
-        echo "✓ Dry run does not create a git tag"
+        echo -e "${GREEN}✓ Dry run does not create a git tag${NC}"
     else
-        echo "✗ Dry run should not create a git tag"
+        echo -e "${RED}✗ Dry run should not create a git tag${NC}"
         exit 1
     fi
     teardown
@@ -61,12 +66,12 @@ test_dry_run_no_tag_on_dry_run() {
 # than major.minor.patch
 test_tag_already_exists() {
     setup
-    git tag "1.2.0"
+    git tag "1.0.0"
     echo "version: 1.0.0" > "$TEST_DIR/pubspec.yaml"
     if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" 2>&1 | grep -q "already exists as a git tag"; then
-        echo "✓ Tag already exists test passed"
+        echo -e "${GREEN}✓ Tag already exists test passed${NC}"
     else
-        echo "✗ Tag already exists test failed"
+        echo -e "${RED}✗ Tag already exists test failed${NC}"
         exit 1
     fi
     teardown
@@ -75,9 +80,9 @@ test_tag_already_exists() {
 test_flag_order_strict_then_dry_run() {
     setup
     if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" "--strict" | grep -q "Release simulation completed"; then
-        echo "✓ Flag order test passed"
+        echo -e "${GREEN}✓ Flag order test passed${NC}"
     else
-        echo "✗ Flag order test failed"
+        echo -e "${RED}✗ Flag order test failed${NC}"
         exit 1
     fi
     teardown
@@ -86,9 +91,9 @@ test_flag_order_strict_then_dry_run() {
 test_flag_order_dry_run_then_strict() {
     setup
     if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" "--strict" | grep -q "Release simulation completed"; then
-        echo "✓ Flag order test passed"
+        echo -e "${GREEN}✓ Flag order test passed${NC}"
     else
-        echo "✗ Flag order test failed"
+        echo -e "${RED}✗ Flag order test failed${NC}"
         exit 1
     fi
     teardown
@@ -97,9 +102,9 @@ test_flag_order_dry_run_then_strict() {
 test_help_output() {
     setup
     if "$SCRIPT_DIR/release.sh" "--help" | grep -q "Usage:"; then
-        echo "✓ Help output test passed"
+        echo -e "${GREEN}✓ Help output test passed${NC}"
     else
-        echo "✗ Help output test failed"
+        echo -e "${RED}✗ Help output test failed${NC}"
         exit 1
     fi
     teardown
