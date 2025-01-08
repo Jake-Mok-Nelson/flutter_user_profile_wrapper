@@ -62,6 +62,7 @@ class ProfileCompletionFormState extends State<ProfileCompletionForm> {
       canPop: false,
       child: Scaffold(
         appBar: AppBar(
+          leading: null,
           title: const Text('Complete Your Profile'),
         ),
         body: Padding(
