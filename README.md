@@ -16,11 +16,29 @@ dependencies:
 Configure your required user properties using the `UserProperty` class:
 ```dart
 UserProperty(
-  label: 'Name', // Displayed label
-  get: () => 'John Doe', // A function that returns the current value
-  validate: (value) => value.isNotEmpty, // A function that acts as a validator for the value
-  save: (value) => {/* save new value */}, // A function that saves the new value to a persistent storage
-)
+  label: 'displayName',
+  get: () async {
+    // Call your APIs here to get the value of a property and see if it's set
+    // final user = FirebaseAuth.instance.currentUser;
+    // return user?.displayName ?? '';
+    return Future.value('John');
+  },
+  // Validate that the value is not empty and is between 2 and 50 characters
+  // Validation occurs on load and when the user tries to save
+  validate: (String value) => switch (value) {
+    String s when s.isEmpty => false,
+    String s when s.length < 2 || s.length > 50 => false,
+
+    // Is AlphaNumeric
+    String s when !RegExp(r'^[a-zA-Z0-9 ]+$').hasMatch(s) => false,
+    _ => true,
+  },
+  save: (String value) async {
+    // Store the new value in a persistent place to proceed with navigation
+    // final user = FirebaseAuth.instance.currentUser;
+    // await user?.updateDisplayName(value);
+  },
+),
 ```
 
 Wrap your app with `UserProfileGatekeeper` to ensure necessary profile data is collected:
