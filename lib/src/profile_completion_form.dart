@@ -58,50 +58,53 @@ class ProfileCompletionFormState extends State<ProfileCompletionForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Complete Your Profile'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          key: _formKey,
-          child: Column(
-            children: <Widget>[
-              ...widget.requiredUserProperties.map((prop) {
-                return FutureBuilder<String>(
-                  future: prop.get(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    return TextFormField(
-                      key: Key(prop.label),
-                      keyboardType: prop.inputType,
-                      decoration: InputDecoration(labelText: prop.label),
-                      initialValue: snapshot.data,
-                      onSaved: (newValue) async => await prop.save(newValue!),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your ${prop.label}';
-                        }
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Complete Your Profile'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            key: _formKey,
+            child: Column(
+              children: <Widget>[
+                ...widget.requiredUserProperties.map((prop) {
+                  return FutureBuilder<String>(
+                    future: prop.get(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      return TextFormField(
+                        key: Key(prop.label),
+                        keyboardType: prop.inputType,
+                        decoration: InputDecoration(labelText: prop.label),
+                        initialValue: snapshot.data,
+                        onSaved: (newValue) async => await prop.save(newValue!),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your ${prop.label}';
+                          }
 
-                        if (!prop.isValid(value)) {
-                          return 'Invalid ${prop.label}';
-                        }
-                        return null;
-                      },
-                    );
-                  },
-                );
-              }),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveForm,
-                child: const Text('Save'),
-              ),
-            ],
+                          if (!prop.isValid(value)) {
+                            return 'Invalid ${prop.label}';
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  );
+                }),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _saveForm,
+                  child: const Text('Save'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
