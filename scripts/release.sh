@@ -78,12 +78,12 @@ fi
 
 # Tag the repository and publish
 if [ "$DRY_RUN" = true ]; then
-    echo "[DRY RUN] Would tag repository with v$VERSION"
+    echo "[DRY RUN] Would tag repository with $VERSION"
     echo "[DRY RUN] Would publish to pub.dev"
     echo "[DRY RUN] Release simulation completed for version $VERSION"
 else
-    git tag "v$VERSION"
-    git push origin "v$VERSION"
+    git tag "$VERSION"
+    git push origin "$VERSION"
 
     # Perform flutter pub publish
     flutter pub publish --force
