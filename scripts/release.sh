@@ -14,12 +14,41 @@ error_exit() {
 }
 
 # Parse arguments
-TARGET_DIR="$1"
-EXIT_ON_NON_SEMVER="$2"
-DRY_RUN="$3"
+TARGET_DIR=""
+EXIT_ON_NON_SEMVER=false
+DRY_RUN=false
+
+show_help() {
+    echo "Usage: $0 <target_directory> [--strict] [--dry-run] [--help]"
+    exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --strict)
+            EXIT_ON_NON_SEMVER=true
+            shift
+            ;;
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --help)
+            show_help
+            ;;
+        *)
+            if [ -z "$TARGET_DIR" ]; then
+                TARGET_DIR="$1"
+                shift
+            else
+                error_exit "Unknown argument: $1"
+            fi
+            ;;
+    esac
+done
 
 if [ -z "$TARGET_DIR" ]; then
-    error_exit "Usage: $0 <target_directory> [--strict] [--dry-run]"
+    show_help
 fi
 
 # Check for pubspec.yaml
@@ -31,14 +60,14 @@ fi
 # Read version
 VERSION=$(grep '^version:' "$PUBSPEC_FILE" | awk '{print $2}')
 if ! [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    if [ "$EXIT_ON_NON_SEMVER" = "--strict" ]; then
+    if [ "$EXIT_ON_NON_SEMVER" = true ]; then
         error_exit "Version $VERSION is not a valid semver (major.minor.patch)"
     fi
 fi
 
 # Check if tag exists
-if git rev-parse "v$VERSION" >/dev/null 2>&1; then
-    error_exit "Version $VERSION already exists as a git tag"
+if git rev-parse "$VERSION" >/dev/null 2>&1; then
+    error_exit "Version $VERSION already exists as a git tag, this might be a duplicate release, please check"
 fi
 
 # Check changelog for matching version
@@ -46,10 +75,12 @@ CHANGELOG_FILE="$TARGET_DIR/CHANGELOG.md"
 if ! grep -q "## $VERSION" "$CHANGELOG_FILE"; then
     error_exit "No matching version $VERSION in CHANGELOG.md"
 fi
-# Tag the repository
-if [ "$DRY_RUN" = "--dry-run" ]; then
+
+# Tag the repository and publish
+if [ "$DRY_RUN" = true ]; then
     echo "[DRY RUN] Would tag repository with v$VERSION"
     echo "[DRY RUN] Would publish to pub.dev"
+    echo "[DRY RUN] Release simulation completed for version $VERSION"
 else
     git tag "v$VERSION"
     git push origin "v$VERSION"
@@ -59,5 +90,4 @@ else
 
     echo "Released version $VERSION successfully"
 fi
-echo "Released version $VERSION successfully"
 

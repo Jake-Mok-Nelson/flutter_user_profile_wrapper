@@ -25,11 +25,6 @@ bump-version: bump
 
 # Publishes the package to pub.dev
 release:
-	flutter pub publish --dry-run
-	@read -p "Do you want to publish the package? (y/n): " confirm; \
-	if [ $$confirm = "y" ]; then \
-		flutter pub publish; \
-	fi
 	./scripts/release.sh $(TARGET_DIR) $(STRICT_FLAG)
 
 
