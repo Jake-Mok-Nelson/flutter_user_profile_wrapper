@@ -25,7 +25,7 @@ bump-version: bump
 
 # Publishes the package to pub.dev
 release:
-	./scripts/release.sh --strict
+	./scripts/release.sh ./ --strict
 
 %:
 	@:
