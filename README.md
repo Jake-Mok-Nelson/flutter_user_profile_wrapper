@@ -25,7 +25,7 @@ If you require that a user provides a property (e.g. name, email, phone number) 
 
 ```yaml
 dependencies:
-  user_profile_gatekeeper: ^0.2.0
+  user_profile_gatekeeper: ^0.1.1
 ```
 
 ## Usage
