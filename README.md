@@ -1,5 +1,7 @@
 # user_profile_gatekeeper
 
+Live demo: [https://jake-mok-nelson.github.io/user_profile_gatekeeper/](https://jake-mok-nelson.github.io/user_profile_gatekeeper/)
+
 Ensure that your users have provided necessary profile information before they can access your app.
 
 If you require that a user provides a property (e.g. name, email, phone number) as a key part of your apps functionality, you can use this package to ensure that the user has provided that information before they navigate.
