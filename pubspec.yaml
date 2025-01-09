@@ -1,6 +1,6 @@
 name: user_profile_gatekeeper
 description: "Ensure that your users have provided necessary profile information before they can access your app."
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/Jake-Mok-Nelson/user_profile_gatekeeper
 
 environment:
