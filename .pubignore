@@ -167,3 +167,6 @@ docs/
 scripts/
 # include simple example only to reduce size
 example/full/
+
+test_pubspec.yaml
+test_README.md

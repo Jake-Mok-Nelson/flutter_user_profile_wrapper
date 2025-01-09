@@ -9,16 +9,15 @@
 
 set -e
 
-if [ "$#" -ne 1 ] && [ "$#" -ne 2 ]; then
-  echo "Usage: $0 [major|minor|patch] [pubspec_file]"
+if [ "$#" -ne 1 ] && [ "$#" -ne 2 ] && [ "$#" -ne 3 ]; then
+  echo "Usage: $0 [major|minor|patch] [pubspec_file] [readme_file]"
   exit 1
 fi
 
 
 BUMP_TYPE=$1
-
-# Accept the pubspec file as a second argument
 PUBSPEC_FILE="$2"
+README_FILE="$3"
 
 if [ -z "$PUBSPEC_FILE" ]; then
     PUBSPEC_FILE="pubspec.yaml"
@@ -28,6 +27,15 @@ fi
 if [ ! -f "$PUBSPEC_FILE" ]; then
   echo "$PUBSPEC_FILE file not found"
   exit 1
+fi
+
+# Check if the README.md file exists
+if [ ! -f "$README_FILE" ]; then
+  README_FILE="README.md"
+  if [ ! -f "$README_FILE" ]; then
+    echo "$README_FILE file not found"
+    exit 1
+  fi
 fi
 
 # Check if the bump type is valid
@@ -60,6 +68,10 @@ esac
 
 NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 
+# Update the pubspec file with the new version
 sed -i "s/^version: .*/version: $NEW_VERSION/" "$PUBSPEC_FILE"
+
+# Find the first instance of ': ^MAJOR.MINOR.PATCH' in the README file and replace it with the new version
+sed -i "0,/: ^[0-9]*\.[0-9]*\.[0-9]*/s/: ^[0-9]*\.[0-9]*\.[0-9]*/: ^$NEW_VERSION/" "$README_FILE"
 
 echo "Bumped version from $VERSION to $NEW_VERSION"

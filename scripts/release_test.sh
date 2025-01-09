@@ -110,11 +110,7 @@ test_help_output() {
     teardown
 }
 
-# Run all tests
-echo "Running release.sh tests..."
-echo "---------------------------------"
 for test_func in $(compgen -A function | grep "^test_"); do
     echo "--- Running $test_func"
     $test_func
 done
-echo "All tests completed."
