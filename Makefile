@@ -1,9 +1,13 @@
 # Makefile for Flutter commands and to release the package
 
-.PHONY: clean test test-scripts bump-version bump release generate-demo test-example-run generate-example
+.PHONY: clean init test test-scripts bump-version bump release generate-demo test-example-run generate-example
 
 clean:
 	flutter clean
+	if [ -d "docs" ]; then rm -rf docs; fi
+
+init:
+	flutter pub get
 
 # Runs the flutter tests
 test:
