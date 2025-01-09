@@ -8,10 +8,11 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     // Define user properties
+    // Important: These are example validators only, ensure you use
+    // proper validation logic for your app
     final List<UserProperty> userProperties = [
       UserProperty(
         label: 'Name',
@@ -31,6 +32,48 @@ class MyApp extends StatelessWidget {
           debugPrint('Email saved: $value');
         },
         inputType: TextInputType.emailAddress,
+      ),
+      UserProperty(
+        label: 'Phone Number',
+        get: () async => '', // Replace with actual retrieval logic
+        validate: (value) =>
+            value.length > 7 &&
+            value.length < 25 &&
+            value.contains(RegExp(r'^[0-9]*$')),
+        save: (value) async {
+          // Replace with actual save logic
+          debugPrint('Phone Number saved: $value');
+        },
+        inputType: TextInputType.phone,
+      ),
+      UserProperty(
+        label: 'Date of Birth (YYYY-MM-DD)',
+        get: () async => '', // Replace with actual retrieval logic
+        validate: (value) {
+          final datePattern = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+          if (!datePattern.hasMatch(value)) {
+            return false;
+          }
+          final parts = value.split('-');
+          final year = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final day = int.parse(parts[2]);
+          if (year < 1900 || year > 2022) {
+            return false;
+          }
+          if (month < 1 || month > 12) {
+            return false;
+          }
+          if (day < 1 || day > 31) {
+            return false;
+          }
+          return true;
+        },
+        save: (value) async {
+          // Replace with actual save logic
+          debugPrint('Date of Birth saved: $value');
+        },
+        inputType: TextInputType.datetime,
       ),
     ];
 

@@ -4,11 +4,26 @@ Ensure that your users have provided necessary profile information before they c
 
 If you require that a user provides a property (e.g. name, email, phone number) as a key part of your apps functionality, you can use this package to ensure that the user has provided that information before they navigate.
 
+### When to use this
+
+- Ensure user's have completed all required information for your app to function
+- Validate user input before allowing them to navigate to ensure all required data is present
+- Ensure that existing required user properties aren't removed or changed to something that doesn't meet your requirements
+
+### When not to use this
+
+- If you don't have any required user properties outside of the mandatory ones from most providers (e.g. id, email, password)
+- If you don't need to validate user input before allowing them to navigate
+- If you don't need to ensure that existing required user properties aren't removed or changed
+- As a replacement for a full user profile system (e.g. user settings, user profile, etc.)
+- To store sensitive information (e.g. SSN, credit card information, passwords, etc.
+
+
 ## Installation
 
 ```yaml
 dependencies:
-  user_profile_gatekeeper: ^0.1.0
+  user_profile_gatekeeper: ^0.2.0
 ```
 
 ## Usage
