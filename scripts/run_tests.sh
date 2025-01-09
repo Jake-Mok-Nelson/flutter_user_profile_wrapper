@@ -25,13 +25,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 echo "Starting test execution..."
-echo "------------------------"
+echo ""
 
 for test_script in ./scripts/*_test.sh; 
 do
   if [ -f "$test_script" ]; then
     ((total_tests++))
-    echo "==================================="
+    echo "===================================================================="
     echo "Running ${test_script}..."
     output=$(bash "$test_script" 2>&1)
     exit_code=$?
@@ -49,7 +49,7 @@ do
   fi
 done
 
-echo "==================================="
+echo "===================================================================="
 echo -e "${GREEN}$passed_tests${NC}/${total_tests} tests passed"
 echo -e "${RED}$failed_tests${NC}/${total_tests} tests failed"
 

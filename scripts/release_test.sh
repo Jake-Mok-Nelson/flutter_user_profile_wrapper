@@ -4,10 +4,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR="/tmp/test_release_${RANDOM}_$(date +%s)"
 
-# Colors for output
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+source "$SCRIPT_DIR/library.sh"
 
 setup() {
     mkdir -p "$TEST_DIR"
@@ -27,86 +24,58 @@ teardown() {
 test_missing_pubspec() {
     setup
     rm "$TEST_DIR/pubspec.yaml"
-    if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" 2>&1 | grep -q "pubspec.yaml not found"; then
-        echo -e "${GREEN}✓ Missing pubspec test passed${NC}"
-    else
-        echo -e "${RED}✗ Missing pubspec test failed${NC}"
-        exit 1
-    fi
+    OUTPUT=$("$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" 2>&1)
+    assert_equal "Missing pubspec.yaml message" "pubspec.yaml not found" "$(echo "$OUTPUT" | grep -o "pubspec.yaml not found")"
     teardown
 }
 
-# Test missing CHANGELOG.md entry, an entry must exist for each version we want to release
 test_invalid_semver_strict() {
     setup
     echo "version: 1.0.0-beta" > "$TEST_DIR/pubspec.yaml"
-    if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--strict" "--dry-run" 2>&1 | grep -q "is not a valid semver"; then
-        echo -e "${GREEN}✓ Invalid semver with strict flag test passed${NC}"
-    else
-        echo -e "${RED}✗ Invalid semver with strict flag test failed${NC}"
-        exit 1
-    fi
+    OUTPUT=$("$SCRIPT_DIR/release.sh" "$TEST_DIR" "--strict" "--dry-run" 2>&1)
+    assert_equal "Invalid semver with strict flag message" "is not a valid semver" "$(echo "$OUTPUT" | grep -o "is not a valid semver")"
     teardown
 }
 
-# Test that the script does not tag the repo when the --dry-run flag is passed
 test_dry_run_no_tag_on_dry_run() {
     setup
     "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" >/dev/null
     if ! git rev-parse "v1.0.0" >/dev/null 2>&1; then
-        echo -e "${GREEN}✓ Dry run does not create a git tag${NC}"
+        TAG_EXISTS=0
     else
-        echo -e "${RED}✗ Dry run should not create a git tag${NC}"
-        exit 1
+        TAG_EXISTS=1
     fi
+    assert_equal "Dry run does not create a git tag" "0" "$TAG_EXISTS"
     teardown
 }
 
-# Test that the script exists with an error when the --strict flag is passed the version contains anything other
-# than major.minor.patch
 test_tag_already_exists() {
     setup
     git tag "1.0.0"
     echo "version: 1.0.0" > "$TEST_DIR/pubspec.yaml"
-    if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" 2>&1 | grep -q "already exists as a git tag"; then
-        echo -e "${GREEN}✓ Tag already exists test passed${NC}"
-    else
-        echo -e "${RED}✗ Tag already exists test failed${NC}"
-        exit 1
-    fi
+    OUTPUT=$("$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" 2>&1)
+    assert_equal "Tag already exists message" "already exists as a git tag" "$(echo "$OUTPUT" | grep -o "already exists as a git tag")"
     teardown
 }
 
 test_flag_order_strict_then_dry_run() {
     setup
-    if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" "--strict" | grep -q "Release simulation completed"; then
-        echo -e "${GREEN}✓ Flag order test passed${NC}"
-    else
-        echo -e "${RED}✗ Flag order test failed${NC}"
-        exit 1
-    fi
+    OUTPUT=$("$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" "--strict")
+    assert_equal "Flag order strict then dry run message" "Release simulation completed" "$(echo "$OUTPUT" | grep -o "Release simulation completed")"
     teardown
 }
 
 test_flag_order_dry_run_then_strict() {
     setup
-    if "$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" "--strict" | grep -q "Release simulation completed"; then
-        echo -e "${GREEN}✓ Flag order test passed${NC}"
-    else
-        echo -e "${RED}✗ Flag order test failed${NC}"
-        exit 1
-    fi
+    OUTPUT=$("$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" "--strict")
+    assert_equal "Flag order dry run then strict message" "Release simulation completed" "$(echo "$OUTPUT" | grep -o "Release simulation completed")"
     teardown
 }
 
 test_help_output() {
     setup
-    if "$SCRIPT_DIR/release.sh" "--help" | grep -q "Usage:"; then
-        echo -e "${GREEN}✓ Help output test passed${NC}"
-    else
-        echo -e "${RED}✗ Help output test failed${NC}"
-        exit 1
-    fi
+    OUTPUT=$("$SCRIPT_DIR/release.sh" "--help")
+    assert_equal "Help output contains Usage" "Usage:" "$(echo "$OUTPUT" | grep -o "Usage:")"
     teardown
 }
 

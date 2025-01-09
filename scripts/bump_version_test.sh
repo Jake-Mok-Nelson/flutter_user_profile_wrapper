@@ -25,12 +25,7 @@ test_patch_bump() {
     setup
     $SCRIPT_DIR/bump_version.sh patch "$TEST_PUBSPEC" "$TEST_README"
     VERSION=$(grep '^version:' "$TEST_PUBSPEC" | awk '{print $2}')
-    if [ "$VERSION" = "1.0.1" ]; then
-        echo -e "${GREEN}✓ Patch bump test passed${NC}"
-    else
-        echo -e "${RED}✗ Patch bump test failed${NC}"
-        exit 1
-    fi
+    assert_equal "Patch bump version" "1.0.1" "$VERSION"
     teardown
 }
 
@@ -39,12 +34,7 @@ test_minor_bump() {
     setup
     $SCRIPT_DIR/bump_version.sh minor "$TEST_PUBSPEC" "$TEST_README"
     VERSION=$(grep '^version:' "$TEST_PUBSPEC" | awk '{print $2}')
-    if [ "$VERSION" = "1.1.0" ]; then
-        echo -e "${GREEN}✓ Minor bump test passed${NC}"
-    else
-        echo -e "${RED}✗ Minor bump test failed${NC}"
-        exit 1
-    fi
+    assert_equal "Minor bump version" "1.1.0" "$VERSION"
     teardown
 }
 
@@ -53,35 +43,22 @@ test_major_bump() {
     setup
     $SCRIPT_DIR/bump_version.sh major "$TEST_PUBSPEC" "$TEST_README"
     VERSION=$(grep '^version:' "$TEST_PUBSPEC" | awk '{print $2}')
-    if [ "$VERSION" = "2.0.0" ]; then
-        echo -e "${GREEN}✓ Major bump test passed${NC}"
-    else
-        echo -e "${RED}✗ Major bump test failed${NC}"
-        exit 1
-    fi
+    assert_equal "Major bump version" "2.0.0" "$VERSION"
     teardown
 }
 
 test_invalid_argument() {
     setup
     $SCRIPT_DIR/bump_version.sh invalid_argument "$TEST_PUBSPEC" "$TEST_README"
-    if [ $? -eq 1 ]; then
-        echo -e "${GREEN}✓ Invalid argument test passed${NC}"
-    else
-        echo -e "${RED}✗ Invalid argument test failed${NC}"
-        exit 1
-    fi
+    assert_equal "Invalid argument exit status" "1" "$?"
     teardown
 }
 
 test_bump_requirements_in_readme() {
     setup
-    
-    
     "$SCRIPT_DIR/bump_version.sh" patch "$TEST_PUBSPEC" "$TEST_README"
     README_PATCH_VERSION=$(get_semver $TEST_README)
-    assert_equal "after patch bump, TEST_README should have with version ^1.0.1" "^1.0.1" "$README_PATCH_VERSION"
-
+    assert_equal "After patch bump, TEST_README should have version ^1.0.1" "^1.0.1" "$README_PATCH_VERSION"
     teardown
 }
 
