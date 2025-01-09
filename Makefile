@@ -1,6 +1,6 @@
 # Makefile for Flutter commands and to release the package
 
-.PHONY: clean test test-scripts bump-version bump release
+.PHONY: clean test test-scripts bump-version bump release generate-demo test-example-run generate-example
 
 clean:
 	flutter clean
@@ -8,6 +8,9 @@ clean:
 # Runs the flutter tests
 test:
 	flutter test
+
+test-example-run:
+	cd example/full && flutter run
 
 # Runs bash script files in ./scripts/ that end in _test.sh
 test-scripts:
@@ -26,6 +29,10 @@ bump-version: bump
 # Publishes the package to pub.dev
 release:
 	./scripts/release.sh ./ --strict
+
+# Generates the example app
+generate-example:
+	./scripts/generate_example.sh
 
 %:
 	@:
