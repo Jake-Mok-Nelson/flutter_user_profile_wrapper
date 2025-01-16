@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
@@ -157,7 +156,7 @@ void main() {
       // Act
       await tester.pumpWidget(MaterialApp(
         home: UserProfileGatekeeper(
-          requiredUserProperties: [],
+          requiredUserProperties: const [],
           navigationManager: fakeManager,
           child: const Text('Child Widget'),
         ),
