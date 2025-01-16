@@ -12,3 +12,5 @@
 # 0.1.3
 - Add pubignore to reduce file size
 
+# 1.0.0
+- Stable release
