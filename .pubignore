@@ -7,9 +7,6 @@ build/
 # If you're building an application, you may want to check-in your pubspec.lock
 pubspec.lock
 
-# Directory created by dartdoc
-# If you don't generate documentation locally you can remove this line.
-doc/api/
 
 # dotenv environment variables file
 .env*
@@ -165,8 +162,7 @@ app.*.symbols
 # Ignore repo specific directories
 docs/
 scripts/
-# include simple example only to reduce size
-example/full/
+
 
 test_pubspec.yaml
 test_README.md

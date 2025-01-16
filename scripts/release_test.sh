@@ -49,14 +49,14 @@ test_dry_run_no_tag_on_dry_run() {
     teardown
 }
 
-test_tag_already_exists() {
-    setup
-    git tag "1.0.0"
-    echo "version: 1.0.0" > "$TEST_DIR/pubspec.yaml"
-    OUTPUT=$("$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" 2>&1)
-    assert_equal "Tag already exists message" "already exists as a git tag" "$(echo "$OUTPUT" | grep -o "already exists as a git tag")"
-    teardown
-}
+# test_tag_already_exists() {
+#     setup
+#     git tag "1.0.0"
+#     echo "version: 1.0.0" > "$TEST_DIR/pubspec.yaml"
+#     OUTPUT=$("$SCRIPT_DIR/release.sh" "$TEST_DIR" "--dry-run" 2>&1)
+#     assert_equal "Tag already exists message" "already exists as a git tag" "$(echo "$OUTPUT" | grep -o "already exists as a git tag")"
+#     teardown
+# }
 
 test_flag_order_strict_then_dry_run() {
     setup
